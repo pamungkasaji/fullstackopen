@@ -1,0 +1,62 @@
+> npx create-react-app part1
+> cd part1
+> npm start
+
+belu paham
+- (event) parameter
+
+https://reactjs.org/docs/introducing-jsx.html
+
+https://reactjs.org/docs/components-and-props.html
+
+[ PART 1 ]
+c. Component state, event handlers
+   Complex state
+      const [clicks, setClicks] = useState({
+         left: 0, right: 0
+      })
+      const handleLeftClick = () =>
+         setClicks({ ...clicks, left: clicks.left + 1 })
+   Handling arrays state
+      const [allClicks, setAll] = useState([])
+      setAll(allClicks.concat('L'))
+   Conditional rendering
+   Old React
+      we use the state hook to add state to our React components
+      Before the addition of hooks, there was no way to add state to functional components
+   Debugging React applications
+      Keep the browser's developer console open at all times.
+      add the React developer tools extension to add Components tab
+   Rules of Hooks
+      useState function and useEffect must not be called from inside of a loop, a conditional expression, or any place that is not a function defining a component
+      hooks may only be called from the inside of a function body that defines a React component
+   Event Handling Revisited
+   Function that returns a function
+      //state
+      const [value, setValue] = useState(10)
+      //the function
+      const setToValue = (newValue) => () => {
+         setValue(newValue)   }
+      //event handler
+      <button onClick={setToValue(0)}>reset</button>
+   Passing Event Handlers to Child Components
+      for example, by extracting the button into its own component
+         <button onClick={props.handleClick}>   {props.text}   </button>
+   Do Not Define Components Within Components
+      The application still appears to work, but never define components inside of other components
+	Useful Reading
+   Excercise
+      nice excercise
+   
+   Calling a function which changes the state causes the component to rerender.
+
+A more complex state, debugging React apps
+	Do Not Define Components Within Components
+
+Part 2
+a Rendering a collection, modules
+	JavaScript Arrays = find, filter, and map
+b. Forms
+
+d.
+  A React component defines the HTML, the JavaScript functions, and also the component's styling; all in one place
