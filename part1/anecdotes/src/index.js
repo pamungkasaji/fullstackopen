@@ -6,23 +6,44 @@ const Button = ({ buttonClick, text }) => (
   <button onClick={buttonClick}> {text} </button>
 )
 
+const Anecdote = (props) => {
+  return (
+    <>
+      {props.anecdote}
+      <br />
+      has {props.votes} vote(s)
+    </>
+  )
+}
+
+const MostUpvote = (props) => {
+  return(
+    <div>
+      <h1>Anecdote with most votes</h1>
+      <p>{props.mostUpvoted}</p>
+    </div>
+  )
+}
+
 const App = (props) => {
   const [selected, setSelected] = useState(0)
-  const [points, setPoints] = useState(new Uint8Array(6));
-  const [mostPoint, setMostPoint] = useState("")
+  const [votes, setVotes] = useState(new Uint8Array(6))
+  const [mostVote, setMostVote] = useState(0)
+  const [hasVote, setHasVote] = useState(false)
 
   const handleNextClick = () => {
     setSelected(Math.floor(Math.random() * anecdotes.length));
   }
 
   const handleVoteClick = () => {
-    const copy = { ...points };
-    copy[selected] += 1;
-    setPoints(copy);
-    if (points[selected] > points[mostPoint]) {
-      console.log('setMostPoint')
-      setMostPoint(selected);
+    const copy = { ...votes }
+    setHasVote(true)
+    if (votes[selected] > votes[mostVote]) {
+      console.log('setMostVote')
+      setMostVote(selected);
     }
+    copy[selected] += 1
+    setVotes(copy)
   }
 
   return (
@@ -30,13 +51,12 @@ const App = (props) => {
       <h1>Anecdote of the day</h1>
       {props.anecdotes[selected]}
       <br />
-      has {points[selected]} points
+      has {votes[selected]} points
       <br />
       <Button buttonClick={handleNextClick} text="next anecdote" />
       <Button buttonClick={handleVoteClick} text="vote" />
       <br />
-      <h1>Anecdote with most votes</h1>
-      {props.anecdotes[mostPoint]}
+      <MostUpvote mostUpvoted={anecdotes[mostVote]} />
     </div>
   )
 }
