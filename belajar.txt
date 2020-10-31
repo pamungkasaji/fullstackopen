@@ -125,6 +125,8 @@ c. Getting data from server
       Exercise skip dulu
 d. Altering data in server
    REST
+   Sending Data to the Server
+
 
 
 
