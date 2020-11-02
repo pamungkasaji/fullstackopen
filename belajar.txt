@@ -87,7 +87,6 @@ b Forms
    Exercises: Phonebook
       template string
 
-[PART 3]
 c. Getting data from server
          Create a file named db.json in the root directory of the project
          > npx json-server --port 3001 --watch db.json
@@ -154,6 +153,189 @@ e. Adding styles to React app
                the JavaScript functions for determining functionality, and also the component's styling; all in one place
                This is to create individual components that are as independent and reusable as possible.
 
+[PART 3]
+a. Node.js and Express
+      We will be building our backend on top of NodeJS, which is a JavaScript runtime based on Google's Chrome V8 JavaScript engine
+      > npm init
+         automatically generated package.json file at the root of the project, that contains information about the project.
+   Simple web server
+   Express
+      Many libraries have been developed to ease server side development with Node
+      These libraries aim to provide a better abstraction for general use cases we usually require to build a backend server
+      By far the most popular library intended for this purpose is express.
+      > npm install express
+      The versioning model used in npm is called semantic versioning.
+      We can update the dependencies of the project with the command:
+         > npm update
+      Likewise, if we start working on the project on another computer, we can install all up-to-date dependencies of the project defined in package.json with a command :
+         > npm install
+   Web and express
+      With express, transformation to JSON format happens automatically
+      JSON is a string, and not a JavaScript object like the value assigned to notes
+   nodemon
+      If we make changes to the application's code we have to restart the application in order to see the changes, unlike the convenient workflow in React
+         The solution to this problem is nodemon
+      nodemon will watch the files in the directory in which nodemon was started, and if any files change, nodemon will automatically restart your node application.
+      Let's install nodemon by defining it as a development dependency with the command:
+         > npm install --save-dev nodemon
+      By development dependencies, we are referring to tools that are needed only during the development of the application, e.g. for testing or automatically restarting the application
+      These development dependencies are not needed when the application is run in production mode on the production server (e.g. Heroku).
+         change script and run > npm run dev
+      even though the backend server restarts automatically, the browser still has to be manually refreshed
+   REST
+      REST is an architectural style meant for building scalable web applications.
+   Fetching a single resource
+      In JavaScript, the "triple equals" comparison === considers all values of different types to not be equal by default, meaning that 1 is not '1'.
+         changing the id parameter found in request.params.id from a string into a number:
+            const id = Number(request.params.id)
+      If no note is found, the server should respond with the status code 404 not found instead of 200
+   Deleting resources
+      Deletion happens by making an HTTP DELETE request to the url of the resource
+      If deleting the resource is successful, we respond to the request with the status code 204 no content
+   Postman
+      Many tools exist for making the testing of backends easier. One of these is a command line program curl
+      However, instead of curl, we will take a look at using Postman for testing the application.
+   The Visual Studio Code REST client
+      you can use the VS Code REST client plugin instead of Postman.
+      We save all the REST client requests in the directory as files that end with the .rest extension
+   Receiving data
+      Adding a note happens by making an HTTP POST request
+      In order to access the data easily, we need the help of the express json-parser
+         that is taken to use with command app.use(express.json()).
+         Without the json-parser, the body property would be undefined
+         The json-parser takes the JSON data of a request, transforms it into a JS object and attaches it to the body property of the request object
+      Dont forget to change Content-type
+      it is better to generate timestamps on the server than in the browser 
+   About HTTP request types
+      The HTTP standard talks about two properties related to request types, safety and idempotence.
+      Safe : GET and HEAD
+         Safety means that the executing request must not cause any side effects in the server
+      Idempotent : GET, HEAD, PUT and DELETE share this property ?
+   Middleware
+      The express json-parser we took into use earlier is a so-called middleware.
+      Middleware are functions that can be used for handling request and response objects.
+      Middleware is a function that receives three parameters:
+      we can use several middleware at the same time
+      Middleware functions are called in the order that they're taken into use with the express server object's use method
+      Middleware can be called before and after routes
+         unknownEndpoint called after routes, if unknown endpoint was given by client
+      http://expressjs.com/en/guide/using-middleware.html
+
+b. Deploying app to internet     
+   Same origin policy and CORS
+      Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g. fonts) on a web page to be requested from another domain
+      by default, the JavaScript code of an application that runs in a browser can only communicate with a server in the same origin.
+         Because our server is in localhost port 3001, and our frontend in localhost port 3000, they do not have the same origin.
+      same origin policy and CORS are not specific to React or Node
+      We can allow requests from other origins by using Node's cors middleware.
+         > npm install cors
+      take the middleware to use and allow for requests from all origins:
+   Application to the Internet
+      let's move our application to the internet using Heroku
+      install heroku, login first. Then follow instruction
+      push issue : https://stackoverflow.com/a/34573866/12250944
+      https://stark-ravine-43458.herokuapp.com/api/notes
+   Frontend production build
+      So far we have been running React code in development mode         
+         In development mode the application is configured to give clear error messages, immediately render code changes to the browser, and so on.
+      When the application is deployed, we must create a production build or a version of the application which is optimized for production.
+         > npm run build
+         This creates a directory called build (which contains the only HTML file of our application, index.html ) which contains the directory static
+         Minified version of our application's JavaScript code will be generated to the static directory
+         Even though the application code is in multiple files, all of the JavaScript will be minified into one file
+      Serving static files from the backend
+         One option for deploying the frontend is to copy the production build (the build directory) to the root of the backend repository ...
+         if both the frontend and the backend are at the same address, we can declare baseUrl as a relative URL
+         copy build in frontend to backend. commit and push backend to heroku
+         https://stark-ravine-43458.herokuapp.com/
+         Our application saves the notes to a variable. If the application crashes or is restarted, all of the data will disappear. It needs a database
+      Streamlining deploying of the frontend
+         add some npm-scripts to the package.json of the backend repository
+      Proxy
+         ?
+c. Saving data to MongoDB
+   Debugging Node applications
+      Printing to the console is always worth doing
+      The Visual Studio Code debugger can be useful in some situations.
+         Click Run -> start debugging on VS Code
+      Chrome dev tools
+         Debugging is also possible with the Chrome developer console by starting your application with the command:
+            node --inspect index.js
+      Question everything
+         there will be many potential areas for bugs in the application.
+         When the application "does not work", we have to first figure out where the problem actually occurs
+         The key is to be systematic. Since the problem can exist anywhere, you must question everything, and eliminate all possibilities one by one
+            Logging to the console, Postman, debuggers, and experience will help.
+         When bugs occur, the worst of all possible strategies is to continue writing code
+            It will guarantee that your code will soon have even more bugs, and debugging them will be even more difficult.
+   MongoDB
+      In this course we will use MongoDB which is a so-called document database.
+      Document databases differ from relational databases in how they organize data as well as the query languages they support.
+      Document databases are usually categorized under the NoSQL umbrella term.
+      MongoDB Atlas: database service for MongoDB
+         create organization and create project on mangodb web first
+         create a starter cluster for free
+         add user for database access
+            username : notesapp, pass : passdbnotesapp
+         follow instruction ...
+      use Mongoose as an object document mapper (ODM), and saving JavaScript objects as Mongo documents
+         > node mongo.js passdbnotesapp
+   Schema
+      After establishing the connection to the database, we define the schema for a note and the matching model:
+   Creating and saving objects
+   Fetching objects from the database
+      The objects are retrieved from the database with the find method of the Note mode
+   Backend connected to a database
+   Database configuration into its own module
+      create a new directory for the module called models, and add a file called note.js
+      There are many ways to define the value of an environment variable
+      It's not a good idea to hardcode the address of the database into the code
+         so instead the address of the database is passed to the application via the MONGODB_URI environment variable.
+         There are many ways to define the value of an environment variable
+            A more sophisticated way is to use the dotenv library
+            > npm install dotenv
+   Using database in route handlers
+      Creating a new note and save it to db
+      use Mongoose's findById method to fetch an individual note 
+   Verifying frontend and backend integration
+      get and post note work fine
+   Error handling
+      When dealing with Promises, it's almost always a good idea to add error and exception handling, 
+         because otherwise you will find yourself dealing with strange bugs
+   Moving error handling into middleware
+      But there are cases where it is better to implement all error handling in a single place
+         This can be useful if we later on want to report data related to errors to an external error tracking system like Sentry
+   The order of middleware loading
+      The execution order of middleware is the same as the order that they are loaded into express with the app.use function.
+      The json-parser middleware should be among the very first middleware loaded into Express
+      middleware for handling unsupported routes is next to the last middleware that is loaded into Express, just before the error handler
+   Other operations
+      add deleting and updating an individual note functionality 
+      The easiest way to delete a note from the database is with the findByIdAndRemove method
+      update uses findByIdAndUpdate method
+         By default, the updatedNote parameter of the event handler receives the original document
+         We added the optional { new: true }parameter, which will cause our event handler to be called with the new modified document instead of the original.
+
+d. Validation and ESLint
+         There are usually constraints that we want to apply to the data that is stored in our application's database. 
+         One way of validating the format of the data is to use the validation functionality available in Mongoose.
+         COBA VALIDATION, BELUM BERHASIL
+      Promise chaining
+         Promise chaining provides much benefit if there were many asynchronous operations that had to be done in sequence using async/await syntax in JavaScript
+      Deploying the database backend to production
+         heroku config:set doesn't work
+         https://stackoverflow.com/questions/55876225/cant-connect-to-mongodb-using-environment-variable-for-heroku
+      Lint
+         lint or a linter is any tool that detects and flags errors in programming languages, including stylistic errors
+         Lint-like tools generally perform static analysis of source code.
+         Let's install ESlint as a development dependency to the backend project 
+            > npm install eslint --save-dev
+            > npx eslint --init
+            The configuration will be saved in the .eslintrc.js file
+         https://eslint.org/docs/rules/
+         Many companies define coding standards that are enforced throughout the organization through the ESlint configuration file.
+         it can be a good idea to adopt a ready-made configuration from someone else's project into yours.
+         Recently many projects have adopted the Airbnb Javascript style guide by taking Airbnb's ESlint configuration into use
 
 
    Calling a function which changes the state causes the component to rerender.
