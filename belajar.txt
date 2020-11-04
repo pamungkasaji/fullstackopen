@@ -54,7 +54,7 @@ c. Component state, event handlers
       most votes belum
 
 [PART 2]
-a Rendering a collection, modules
+a. Rendering a collection, modules
    JavaScript Arrays
       functional programming methods of the JavaScript array, such as find, filter, and map
       https://www.youtube.com/playlist?list=PL0zVEGEvSaeEd9hlmCXrk5yUyqUag-n84
@@ -80,7 +80,7 @@ a Rendering a collection, modules
       Use console.log for debugging
    Excercise
 
-b Forms
+b. Forms
    expanding Note application by allowing users to add new notes
    Filtering Displayed Elements
       conditional operator
@@ -180,7 +180,8 @@ a. Node.js and Express
          > npm install --save-dev nodemon
       By development dependencies, we are referring to tools that are needed only during the development of the application, e.g. for testing or automatically restarting the application
       These development dependencies are not needed when the application is run in production mode on the production server (e.g. Heroku).
-         change script and run > npm run dev
+         change script and run 
+            > npm run dev
       even though the backend server restarts automatically, the browser still has to be manually refreshed
    REST
       REST is an architectural style meant for building scalable web applications.
@@ -337,8 +338,148 @@ d. Validation and ESLint
          it can be a good idea to adopt a ready-made configuration from someone else's project into yours.
          Recently many projects have adopted the Airbnb Javascript style guide by taking Airbnb's ESlint configuration into use
 
+[PART 4]
+a. Structure of backend application, introduction to testing
+      Project structure
+         modify the structure of our project to adhere to Node.js best practices.
+         separate all printing to the console to its own module utils/logger.js
+         The index.js file only imports the actual application from the app.js file and then starts the application.
+         The handling of environment variables is extracted into a separate utils/config.js file
+         The route handlers have also been moved into a dedicated module (controllers).
+            All of the routes related to notes are now in the notes.js module under the controllers directory.
+         A router object is an isolated instance of middleware and routes.
+         The app.js file that creates the actual application, takes different middleware into use
+         custom middleware has been moved to a new utils/middleware.js module
+         The responsibility of establishing the connection to the database has been given to the app.js
+         The note.js file under the models directory only defines the Mongoose schema for notes
+         Once the application starts to grow in size, you are going to have to establish some kind of structure
+            and separate the different responsibilities of the application into separate modules
+      Testing Node applications
+         one essential area of software development is automated testing
+         we will be using a testing library developed and used internally by Facebook called jest
+         Jest is a natural choice for this course, as it works well for testing backends, and it shines when it comes to testing React applications.
+         install jest as a development dependency
+            > npm install --save-dev jest
+         Individual test cases are defined with the test function
+         run the test using command:
+            > npm test
+            Jest expects by default that the names of test files contain .test
+         Describe blocks can be used for grouping tests into logical collections
 
-   Calling a function which changes the state causes the component to rerender.
+b. Testing the backend
+         Since the backend does not contain any complicated logic, it doesn't make sense to write unit tests for it
+         The only potential thing we could unit test is the toJSON method that is used for formatting notes.
+         it can be beneficial to implement some of the backend tests by mocking the database instead of using a real database
+            One library that could be used for this is mongo-mock.
+         Since our application's backend is simple, we willtest the entire application through its REST API, so that the database is also included
+            This kind of testing where multiple components of the system are being tested as a group, is called integration testing.
+      Test environment
+         when your backend server is running in Heroku, it is in production mode.
+         > npm install --save-dev cross-env
+         We can create our separate test database in Mongo DB Atlas.
+            This is not an optimal solution in situations where there are many people developing the same application. 
+            It would be better to run our tests using a database that is installed and running in the developer's local machine. 
+            This is "relatively simple" to achieve by running Mongo in-memory or by using Docker containers.
+            We will not complicate things and will instead continue to use the MongoDB Atlas database.
+         We specified the mode of the application to be development in the npm run dev script that uses nodemon.
+         We also specified that the default npm start command will define the mode as production.
+      supertest
+         use the supertest package to help us write our tests for testing the API.
+         async/await syntax is related to the fact that making a request to the API is an asynchronous operation
+      Initializing the database before tests
+         In order to make our tests more robust, we have to reset the database and generate the needed test data in a controlled manner before we run the tests
+         Our tests are already using the afterAll function of Jest to close the connection to the database after the tests are finished executing
+         initialize the database before every test with the beforeEach function
+      Running tests one by one
+         > npm test -- tests/note_api.test.js
+         > npm test -- -t 'a specific note is within the returned notes'
+      async/await
+         async/await syntax makes it possible to use asynchronous functions that return a promise in a way that makes the code look synchronous
+         read explanation in course
+         In order to use the await operator with asynchronous operations, they have to return a promise
+         The await keyword can't be used just anywhere in JavaScript code.
+            Using await is possible only inside of an async function.
+      async/await in the backend
+         change the route handler functions into async functions.
+      More tests and refactoring the backend
+         When code gets refactored, there is a risk of regression, meaning that existing functionality may break
+         The code using promises works and the tests pass. We are ready to refactor our code to use the async/await syntax.
+      Error handling and async/await
+         With async/await the recommended way of dealing with exceptions is the old and familiar try/catch mechanism
+         The catch block simply calls the next function, which passes the request handling to the error handling middleware.
+      Eliminating the try-catch
+         The express-async-errors library has a solution for refactoring the code to eliminate the catch from the methods
+            > npm install express-async-errors
+            the library allows us to eliminate the try-catch blocks completely
+            Because of the library, we do not need the next(exception) call anymore
+            If an exception occurs in a async route, the execution is automatically passed to the error handling middleware.
+      Optimizing the beforeEach function
+         a better way of saving multiple objects to the database
+         every iteration of the forEach loop generates its own asynchronous operation, and beforeEach won't wait for them to finish executing
+            the await commands defined inside of the forEach loop are not in the beforeEach function, but in separate functions that beforeEach will not wait for.
+         One way of fixing this is to wait for all of the asynchronous operations to finish executing with the Promise.all method
+            Promise.all executes the promises it receives in parallel
+            If the promises need to be executed in a particular order, the operations can be executed inside of a for...of block
+            The asynchronous nature of JavaScript can lead to surprising behavior
+               pay careful attention when using the async/await syntax
+               Even though the syntax makes it easier to deal with promises, it is still necessary to understand how promises work
+      Refactoring tests
+         This way of testing the API, by making HTTP requests and inspecting the database with Mongoose, is by no means the only nor the best way of conducting API-level integration tests
+         There is no universal best way of writing tests, as it all depends on the application being tested and available resources.
 
-A more complex state, debugging React apps
-	Do Not Define Components Within Components
+c. User administration
+      Users should be stored in the database and every note should be linked to the user who created i
+      Deleting and editing a note should only be allowed for the user who created it.
+      There is a one-to-many relationship between the user (User) and notes (Note). There are many different ways of modeling the situation.
+      The existing solution saves every note in the notes collection in the database
+      Like with all document databases, we can use object id's in Mongo to reference documents in other collections
+         This is similar to using foreign keys in relational databases.
+      read !
+      document databases like Mongo do not support join queries that are available in relational databases
+         However starting from version 3.2. Mongo has supported lookup aggregation queries
+      In certain situations Mongoose can take care of joining and aggregating data, which gives the appearance of a join query
+   References across collections
+      If we were using a relational database the note would contain a reference key to the user who created it.
+         In document databases we can do the same thing.
+      read !
+      The chosen schema must be one which supports the use cases of the application the best
+   Mongoose schema for users
+      In this case, we make the decision to store the ids of the notes created by the user in the user document
+      read !
+      In stark contrast to the conventions of relational databases, references are now stored in both documents
+   Creating users
+      Users have a unique username, a name and something called a passwordHash
+      The password hash is the output of a one-way hash function applied to the user's password
+      install the bcrypt package for generating the password hashes
+         > npm install bcrypt
+      read !
+      practicing test-driven development (TDD), where tests for new functionality are written before the functionality is implemented.
+      validate the uniqueness of the username with the help of Mongoose validators
+         > npm install mongoose-unique-validator
+   Creating a new note
+      information about the user who created a note is sent in the userId field of the request body
+      read and do !
+   Populate
+      when request is made to the /api/users route, the user objects would also contain the contents of the user's notes, and not just their id
+         In a relational database, this functionality would be implemented with a join query.
+      Mongoose accomplishes the join by doing multiple queries, which is different from join queries in relational databases which are transactional
+          nothing can guarantee that the state between the collections being joined is consistent
+      The Mongoose join is done with the populate method
+      We can use the populate parameter for choosing the fields we want to include from the documents
+
+d. Token authentication
+      Install the jsonwebtoken library
+         > npm install jsonwebtoken
+      jwt only work in production env?
+         > npm start
+   Limiting creating new notes to logged in users
+      change creating new notes so that it is only possible if the post request has a valid token attached
+      use Bearer auth scheme
+   Error handling
+      The token can be faulty, falsified, or expired
+      Github 4-9
+   End notes
+      Usernames, passwords and applications using token authentication must always be used over HTTPS
+      the production version of our application is in Heroku, Heroku routes all traffic between a browser and the Heroku server over HTTPS
+
+      
