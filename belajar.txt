@@ -1,6 +1,11 @@
+It is extremely unprofessional to leave any red output to the browser console.
+
 > npx create-react-app part1
 > cd part1
 > npm start
+
+belum bisa :
+- End to end -testing Part 5.d
 
 belu paham
 - (event) parameter
@@ -482,4 +487,296 @@ d. Token authentication
       Usernames, passwords and applications using token authentication must always be used over HTTPS
       the production version of our application is in Heroku, Heroku routes all traffic between a browser and the Heroku server over HTTPS
 
-      
+[PART 5]
+
+a. Login in frontend
+      modify app component
+      The app state has fields for username and password to store the data from the form
+      The form fields have event handlers, which synchronize changes in the field to the state of the App component
+      The event handlers: An object is given to them as a parameter, and they destructure the field target from the object and save its value to the state
+      Github 5-1
+      Use async/await syntax instead of promises for the login request
+      show the login form only if the user is not logged-in
+   Creating new notes
+      adding new notes with user token works
+   Saving the token to the browser's local storage
+      Our application has a flaw: when the page is rerendered, information of the user's login disappears
+      Local Storage is a key-value database in the browser.
+      A value corresponding to a certain key is saved to the database with method setItem
+         window.localStorage.setItem('name', 'juha tauriainen')
+      The value of a key can be found with method getItem:
+         window.localStorage.getItem('name')
+      and removeItem removes a key.
+      Values saved to the storage are DOMstrings, so we cannot save a JavaScript object as is
+         The object has to be parsed to JSON first, with the method JSON.stringify
+         when a JSON object is read from the local storage, it has to be parsed back to JavaScript with JSON.parse
+         On Chrome, go to the Application tab and select Local Storage 
+      We still have to modify our application so that when we enter the page, the application checks if user details of a logged-in user can be found on the local storage
+         The right way to do this is with an effect hook: a mechanism we first encountered in part 2
+         The empty array as the parameter of the effect ensures that the effect is executed only when the component is rendered for the first time.
+      Now a user stays logged-in in the application forever
+         (exercise) add a logout functionality which removes the login details from the local storage
+
+b. props.children and proptypes
+   Displaying the login form only when appropriate
+      modify the application so that login form appears when the user presses the login button
+      start by extracting the login form into its own component (LoginForm,js)
+      set button visibility by giving the component an inline CSS style rule
+   The components children, aka. props.children
+      Extracting the code related to managing the visibility of the login form to a new Togglable component
+         LoginForm is a child component of Togglable component
+      props.children, is used for referencing the child components of the component
+         Unlike the "normal" props we've seen before, children is automatically added by React and always exists
+   State of the forms
+      https://reactjs.org/docs/lifting-state-up.html
+         We could move the state of the forms to the corresponding components.
+      read !
+   References to components with ref
+      Refs provide a way to access DOM nodes or React elements created in the render method.
+      the useImperativeHandle function is a React hook, that is used for defining functions in a component which can be invoked from outside of the component
+      There are also other use cases for refs than accessing React components
+   One point about components
+      When we define a component in React, and use it multiple time 
+         We create three separate instances of the component that all have their own separate state
+   Exercises 5.5.-5.10 skip
+   PropTypes
+      We can define a component prop as a mandatory or required string-type prop using library
+      The expected and required props of a component can be defined with the prop-types package
+         > npm install prop-types
+      The console will display error message if the prop is left undefined
+      Let's also define PropTypes to the LoginForm component
+         If the type of a passed prop is wrong, e.g. if we try to define the handleSubmit prop as a string, then the console will display warning
+   ESlint
+      Create-react-app has installed ESlint to the project by default, we have to define our desired configuration in the .eslintrc.js file
+      we will start testing the frontend and in order to avoid undesired and irrelevant linter errors we will install the eslint-plugin-jest package
+         > npm install --save-dev eslint-plugin-jest
+      create a .eslintrc.js file
+      create .eslintignore file and skip build and node_modules directory
+      create a npm script to run the lint
+      (penting) run npm run lint -- --fix to get rid of current CRLF
+      https://stackoverflow.com/a/63512242/12250944
+         remove "error 'module' is not defined no-undef"
+
+c. Testing React apps
+      Tests will be implemented with testing library developed by Facebook
+      Jest is actually configured by default to applications created with create-react-app
+      In addition to Jest, we also need another testing library that will help us render components for testing purposes
+         The current best option for this is react-testing-library
+            > npm install --save-dev @testing-library/react 
+            > npm install --save-dev @testing-library/jest-dom
+      write tests for the component that is responsible for rendering a note
+         the li element has the CSS classname note, that is used to access the component in our tests
+   Rendering the component for tests
+      write our test in the src/components/Note.test.js file, which is in the same directory as the component itself
+      render returns an object that has several properties. One of the properties is called container, and it contains all of the HTML rendered by the component
+   Running tests
+      Create-react-app configures tests to be run in watch mode by default
+      npm test command will not exit once the tests have finished, and will instead wait for changes to be made to the code
+      Once new changes to the code are saved, the tests are executed automatically
+      (BELUM BISA) use Watchman to run test normally
+         (doesn't work) https://stackoverflow.com/questions/38451764/how-to-install-watchman-on-windows-win10
+         https://www.youtube.com/watch?v=1ap3hL-UR9I
+   Test file location
+      In React there are (at least) two different conventions for the test file's location
+         - placing them in the same directory as the component being tested
+         - store the test files "normally" in their own separate directory
+   Searching for content in a component
+      The react-testing-library package offers many different ways of investigating the content of the component being tested
+         - uses method toHaveTextContent to search for a matching text from the entire HTML code rendered by the component
+         - uses the getByText method of the object returned by the render method
+         - search for a specific element that is rendered by the component with the querySelector method
+   Debugging tests
+      The object returned by the render method has a debug method that can be used to print the HTML rendered by the component to the console
+      It is also possible to search for a smaller part of the component and print its HTML code
+         we need the prettyDOM method that can be imported from the @testing-library/dom package that is automatically installed with react-testing-library
+   Clicking buttons in tests
+      the Note component also makes sure that when the button associated with the note is pressed, the toggleImportance event handler function gets called.
+      Clicking happens with the fireEvent method.
+   Tests for the Togglable component
+      add the togglableContent CSS classname to the div that returns the child components
+   Testing the forms
+      beforeEach function gets called before each test, which then renders the Togglable component into the component variable
+   Testing the forms
+      Other than create a click event for the button component, We can also simulate text input with fireEvent
+      The form works by calling the createNote function it received as props with the details of the new note.
+   Test coverage
+      > npm test -- --coverage
+   Frontend integration tests
+      read
+   Snapshot testing
+      read
+
+d. (sulit, belum berhasil) End to end -testing
+      We will look into one way to test the system as a whole using End to End (E2E) tests
+      We can do E2E testing of a web application using a browser and a testing library, for example Selenium 
+      E2E tests are potentially the most useful category of tests, because they test the system through the same interface as real users use
+      They do have some drawbacks too. Configuring E2E tests is more challenging than unit or integration tests
+   Cypress
+      E2E library Cypress has become popular within the last year. 
+      Cypress is exceptionally easy to use, and when compared to Selenium, it requires a lot less hassle and headache
+      installing Cypress to the frontend as development dependency
+         > npm install --save-dev cypress
+      Cypress tests can be in the frontend or the backend repository, or even in their own separate repository.
+      The tests require the tested system to be running. Cypress tests do not start the system when they are run
+      praktik !
+   Writing to a form
+      extend our tests so, that the test tries to log in to our application
+      It would be better to give our inputs unique ids and use those to find them
+   Some things to note
+      the variable cy our tests use gives us a nasty Eslint error
+      get rid of it by installing eslint-plugin-cypress as a development dependency
+         > npm install eslint-plugin-cypress --save-dev
+   Testing new note form
+      Only logged in users can create new notes, so we added logging in to the application to a beforeEach block
+      Cypress runs the tests in the order they are in the code
+   Controlling the state of the database
+      If the tests need to be able to modify the server's database, the server's database should be the same each time we run the tests, so our tests can be reliably and easily repeatable
+      As with unit and integration tests, with E2E tests it is the best to empty the database and possibly format it before the tests are run
+      The challenge with E2E tests is that they do not have access to the database.
+         The solution is to create API endpoints to the backend for the test (controllers/testing.js)
+      add a new user to the backend from the beforeEach block.
+      During the formatting the test does HTTP requests to the backend with cy.request.
+         now the testing starts with the backend in the same state every time. The backend will contain one user and no notes.
+   Failed login test
+      make a test to ensure that a login attempt fails if the password is wrong.
+      hen developing a new test or when debugging a broken test, we can define the test with it.only instead of it
+   Bypassing the UI
+      Under the hood cy.request, like all Cypress commands, are promises
+      If and when we write new tests to our application, we have to use the login code in multiple places. We should make it a custom command.
+         Custom commands are declared in cypress/support/commands.js
+
+PART 6
+a. Flux-architecture and Redux
+      So far, we have placed the application's state and state logic directly inside React-components.
+      When applications grow larger, state management should be moved outside React-components
+      Redux-library is the most popular solution for managing the state of React-applications
+   Flux-architecture
+      Facebook developed the Flux- architecture to make state management easier
+      read !
+   Redux
+      Redux works with the same principle as Flux, but is a bit simpler. Facebook also uses Redux now instead of their original Flux.
+      install redux with the command
+         > npm install redux
+      As in Flux, in Redux the state is also stored in a store. The state of the store is changed with actions
+      Actions are objects, which have at least a field determining the type of the action
+      The impact of the action to the state of the application is defined using a reducer
+         reducer is a function which is given the current state and an action as parameters. It returns a new state.
+      Reducer is never supposed to be called directly from the applications code
+         Reducer is only given as a parameter to the createStore-function which creates the store
+      The store uses the reducer to handle actions, which are dispatched or 'sent' to the store with its dispatch-method.
+      You can find out the state of the store using the method getState
+      subscribe method is used to create callback functions the store calls when its state is changed.
+   Redux-notes
+      cover a few key concepts through a simplified note application
+   Pure functions, immutable
+      Redux reducer that reducers must be pure functions
+      Pure functions do not cause any side effects and they must always return the same response when called with the same parameters
+      A reducer state must be composed of immutable objects
+         If there is a change in the state, the old object is not changed, but it is replaced with a new, changed, object
+         use concat method, which creates a new array
+      Expand the reducer in the 'test driven' way. Create a test for handling the action NEW_NOTE
+      add the library deep-freeze, which can be used to ensure that the reducer has been correctly defined as an immutable function
+         > npm install --save-dev deep-freeze
+         The deepFreeze(state) command ensures that the reducer does not change the state of the store given to it as a parameter
+            If the reducer uses the push command to manipulate the state, the test will not pass
+   Array spread syntax
+      Adding a new note create by using the JavaScript array spread -syntax
+   Uncontrolled form
+      add the functionality for adding new notes and changing their importance
+      we have not bound the state of the form fields to the state of the App component like we have previously done
+         React calls this kind of form uncontrolled
+         Uncontrolled forms have certain limitations (for example, dynamic error messages or disabling the submit button based on input are not possible)
+      We can get the content of the new note straight from the form field. we can access the content via the event object event.target.note.value
+   Action creators
+      It is not necessary for React-components to know the Redux action types and forms
+         Let's separate creating actions into their own functions. Functions that create actions are called action creators
+   Forwarding Redux-Store to various components
+      when a component is composed of many smaller components, there must be a way for all of the components to access the store.
+      Use react-redux library to share the redux-store with components
+         > npm install react-redux
+      the application is now defined as a child of a Provider -component provided by the react redux library
+         The application's store is given to the Provider as its attribute store
+      If the application has many components which need the store, the App-component must pass store as props to all of those components.
+      A module can have only one default export, but multiple "normal" exports
+         Normally (not as defaults) exported functions can be imported with the curly brace syntax
+      Previously the code dispatched actions by calling the dispatch method of the redux-store
+         Now it does it with the dispatch-function from the useDispatch -hoo
+         useDispatch-hook provides any React component access to the dispatch-function of the redux-store defined in index.js
+            This allows all components to make changes to the state of the redux-store.
+      The component can access the notes stored in the store with the useSelector-hook of the react-redux library.
+   More components
+      separate creating a new note into its own component
+      the event handler for changing the state of the app (which now lives in Redux) has been moved away from the App to a child componen
+      separate the list of notes and displaying a single note into their own components
+         The logic for changing the importance of a note is now in the component managing the list of notes.
+         Note, responsible for rendering a single note, is not aware that the event handler it gets as props dispatches an action. These kind of components are called presentational
+         Notes, is a container component, as it contains some application logic:
+            - it defines what the event handlers of the Note components do
+            - coordinates the configuration of presentational components, that is, the Note
+   Github, branch part 6-1
+
+b. Many reducers
+      change our reducer so that the store gets initialized with a state that contains a couple of notes
+   Store with complex state
+      implement filtering for the notes that are displayed to the user using radio buttons
+      the new implementation of state object has two properties, notes that contains the array of notes and filter that contains a string indicating which notes should be displayed
+   Combined reducers
+      define a new separate reducer for the state of the filter
+      create the actual reducer for our application by combining the two existing reducers with the combineReducers function
+         The state of the store defined by the reducer is an object with two properties: notes (noteReducer) and filter (filterReducer)
+      The combined reducer works in such a way that every action gets handled in every part of the combined reducer
+   Finishing the filters
+      extract the visibility filter into its own VisibilityFilter.js component
+   Redux DevTools
+      Chrome extension Redux DevTools can be installed to monitor state of the Redux-store and the action that changes it from the console of the browser
+      When debugging, in addition to the browser extension we also have the software library redux-devtools-extension
+         > npm install --save-dev redux-devtools-extension
+
+c. Communicating with server in a redux application
+      expand the application, such that the notes are stored to the backend.Use json-server, familiar from part 2.
+      The initial state of the database is stored into the file db.json
+      install json-server for the project
+         > npm install json-server --save-dev
+      modify scripts part of the file package.json and run > npm run server
+      add axios to the project > npm install axios
+      change the initialization of the state in noteReducer, such that by default there are no notes
+   Do !!
+   Asynchronous actions and redux thunk
+      Our approach is OK, but it is not great that the communication with the server happens inside the functions of the components
+         the communication could be abstracted away from the components, so they don't have to do anything else but call the appropriate action creator
+      DO !!
+      install the redux-thunk-library, which enables us to create asynchronous actions
+         > npm install redux-thunk
+         redux-thunk-library is a so-called redux-middleware, which must be initialized along with the initialization of the store
+      extract the definition of the store into its own file src/store.js:
+      do !!
+
+d. connect
+      we have used our redux-store with the help of the hook-api from react-redux
+         Practically this has meant using the useSelector and useDispatch functions
+      In new applications you should absolutely use the hook-api, but knowing how to use connect is useful when maintaining older projects using redux.
+   Using the connect-function to share the redux store to components
+      modify the Notes component so that instead of using the hook-api (the useDispatch and useSelector functions ) it uses the connect-function
+      Connect function can be used for transforming "regular" React components so that the state of the Redux store can be "mapped" into the component's props
+      The connect function accepts mapStateToProps function for defining the props of the connected component that are based on the state of the Redux store.
+   mapDispatchToProps
+      The second parameter of the connect function can be used for defining mapDispatchToProps
+         which is a group of action creator functions passed to the connected component as props
+      Let's also use connect to create new notes
+         Since the component does not need to access the store's state, we can simply pass null as the first parameter to connect.
+   Referencing action creators passed as props
+      read!!
+   Alternative way of using mapDispatchToProps
+      The functions passed in mapDispatchToProps must be action creators, that is, functions that return Redux actions.
+      In this alternative definition, mapDispatchToProps is a function that connect will invoke by passing it the dispatch-function as its paramete
+   The creator of Redux has created a wonderful tutorial called Getting started with Redux that you can find on Egghead.io.
+   Presentational/Container revisited
+      read !!
+   Redux and the component state
+      React only focuses on generating the views, and the application state is separated completely from the React components and passed on to Redux, its actions, and its reducers.
+      What about the useState-hook, which provides components with their own state?
+         If the application has more complicated forms, it may be beneficial to implement their local state using the state provided by the useState function
+      Should we always use redux? Probably not. Dan Abramov, the developer of redux, discusses this in his article You Might Not Need Redux.
+      Nowadays it is possible to implement redux-like state management without redux by using the React context-api and the useReducer-hook
+
+[PART 7]
