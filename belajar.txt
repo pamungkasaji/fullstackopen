@@ -11,6 +11,9 @@ belu paham
 - (event) parameter
 - Promises, promise chaining
 
+things I love :
+- custom hooks
+
 console warning :
 https://stackoverflow.com/a/61442974/12250944
 
@@ -780,3 +783,182 @@ d. connect
       Nowadays it is possible to implement redux-like state management without redux by using the React context-api and the useReducer-hook
 
 [PART 7]
+      React router helps us divide the application into different views that are shown based on the URL in the browser's address ba
+      we'll look at a few more ways to add CSS-styles to React applications
+      we'll learn how Webpack works and how we can use it to configure the application ourselves
+      have a look on hook-functions and how to define a custom hook.
+a. React-router
+   Application navigation structure
+      It is very common for web-applications to have a navigation bar, which enables switching the view of the application.
+      In an old school web app, changing the page is accomplished by the browser making an HTTP GET request to the server and rendering the HTML representing the view that was returned
+      In SPA, we are, in reality, always on the same page. The Javascript code run by the browser creates an illusion of different "pages"
+      If HTTP requests are made when switching view, they are only for fetching JSON formatted data, which the new view might require for it to be shown
+      Each view is implemented as its own component. We store the view component information in the application state called page
+         This information tells us which component, representing a view, should be shown below the menu bar.
+      The method is not very optimal, because the address stays the same even though at times we are in different views and the back-button doesn't work as expected
+         React has the React router-library, which provides an excellent solution for managing navigation
+            > npm install react-router-dom
+      Routing, or the conditional rendering of components based on the url in the browser, is used by placing components as children of the Router component, meaning inside Router-tags
+      even though the component is referred to by the name Router, we are in fact talking about BrowserRouter
+         BrowserRouter is a Router that uses the HTML5 history API (pushState, replaceState and the popState event) to keep your UI in sync with the URL
+         with the help of the HTML5 history API BrowserRouter enables us to use the URL in the address bar of the browser for internal "routing" in a React-application
+         So, even if the URL in the address bar changes, the content of the page is only manipulated using Javascript, and the browser will not load new content form the server
+         Using the back and forward actions, as well as making bookmarks, is still logical like on a traditional web page.
+      Inside the router we define links that modify the address bar with the help of the Link component
+      Components rendered based on the URL of the browser are defined with the help of the component Route
+      We wrap the components to be rendered based on the url with a Switch-component
+         Note that the order of the components is important
+         If we put the Home-component, whose path is path="/", first, nothing else would ever get rendered because the "nonexistent" path "/" is the start of every path
+   Parameterized route
+      The application now contains five different views whose display is controlled by the router
+      In addition to Home, Notes and Users, we have Login representing the login view and Note representing the view of a single note
+         Notes renders the list of notes passed to it as props in such a way that the name of each note is clickable
+         The ability to click a name is implemented with the component Link
+         define the route rendering a specific note "express style" by marking the parameter with a colon :id
+         When a browser navigates to the url for a specific note, for example /notes/3, we render the Note component
+         Note component receives all of the notes as props notes, and it can access the url parameter (the id of the note to be displayed) with the useParams function of the react-router
+   useHistory
+      If a user is logged in, information about a logged in user is saved to the user field of the state of the App component
+      The option to navigate to the Login-view is rendered conditionally in the menu
+      use useHistory function of the react-router in Login component to access a history object
+         The history object can be used to modify the browser's url programmatically.
+         With user log in, the history.push('/') call causes the browser's url to change to / and the application renders the corresponding component Home.
+      Both useParams and useHistory are hook-functions, just like useState and useEffect
+         Create-react-app has been configured to warn you if you break hook-functions rules
+   redirect
+      If a user isn't logged in, the Users component is not rendered. Instead, the user is redirected using the Redirect-component to the login view
+      it would perhaps be better to not even show links in the navigation bar requiring login if the user is not logged into the application
+      define an element called footer, which defines the part at the bottom of the screen, outside of the Router, so that it is shown regardless of the component shown
+   Parameterized route revisited
+      Our application has a flaw. The Note component receives all of the notes, even though it only displays the one whose id matches the url parameter
+      use react-router's useRouteMatch hook to figure out the id of the note to be displayed in the App component
+         move the use of the Router components from App to use useRouteMatch-hook
+      Every time the component is rendered, or every time the browser's url changes, useRouteMatch('/notes/:id') is executed
+
+b. Custom hooks
+   Hooks
+      React offers 10 different built-in hooks, popular ones are the useState and useEffect hooks
+      In part 5 we used the useImperativeHandle-hook which allows for components to provide their functions to other components.
+      we used the useSelector and useDispatch hooks from the react-redux library to share our redux-store and dispatch function to our components
+      React-router's api is also partially hook based. Its hooks can be used to access url parameters and the history object
+      hooks are not normal functions, and when using those we have to adhere to certain rules or limitations
+         - Don’t call Hooks inside loops, conditions, or nested functions. Instead, always use Hooks at the top level of your React function.
+         - Don’t call Hooks from regular JavaScript functions
+   Custom hooks
+      the primary purpose of custom hooks is to facilitate the reuse of the logic used in components
+      Custom hooks are regular JavaScript functions that can use any other hooks, as long as they adhere to the rules of hooks
+      the name of custom hooks must start with the word use
+      We implemented a counter application in part 1, that can have its value incremented, decremented, or reset
+      extract the counter logic into its own custom hook
+         Our custom hook uses the useState hook internally to create its own state
+         The hook returns an object, the properties of which include the value of the counter as well as functions for manipulating the value
+         we can extract the state of the App component and its manipulation entirely into the useCounter hook
+         Managing the counter state and logic is now the responsibility of the custom hook
+         The same hook could be reused in the application that was keeping track of the amount of clicks made to the left and right buttons
+            The application creates two completely separate counters. The first one is assigned to the variable left and the other to the variable right
+      Dealing with forms in React is somewhat tricky. Every field of the form has its own state and onChange handler 
+      define our own custom useField hook, that simplifies the state management of the form
+         The hook function receives the type of the input field as a parameter. The function returns all of the attributes required by the input: its type, value and the onChange handler.
+   Spread attributes
+      Since the name object has exactly all of the attributes that the input element expects, we can pass the props to the element using the spread syntax
+      Dealing with forms is simplified when the unpleasant nitty-gritty details related to synchronizing the state of the form is encapsulated inside of our custom hook
+      Custom hooks are clearly not only a tool for reuse, they also provide a better way for dividing our code into smaller modular parts.
+   More about hooks
+      sources worth checking out
+
+c. More about styles
+   Ready-made UI libraries
+      One of the first widely popular UI frameworks was the Bootstrap
+      Many UI frameworks provide developers of web applications with ready-made themes and "components" like buttons, menus, and tables
+         we are not talking about React components
+      Usually UI frameworks are used by including the CSS stylesheets and JavaScript code of the framework in the application
+      There are many UI frameworks that have React-friendly versions, where the framework's "components" have been transformed into React components
+         There are a few different React versions of Bootstrap like reactstrap and react-bootstrap
+   React Bootstrap
+         > npm install react-bootstrap
+         add a link for loading the CSS stylesheet for Bootstrap inside of the head tag in the public/index.html file
+         In Bootstrap, all of the contents of the application are typically rendered inside of a container
+            this is accomplished by giving the root div element of the application the container class attribute
+         make some changes to the Notes component, so that it renders the list of notes as a table. React Bootstrap provides a built-in Table component for this purpose
+         React Bootstrap components have to be imported separately from the library
+      Forms : React Bootstrap provides built-in components for creating forms
+      Notification
+         Store Notification in the message variable in the App component's state
+         We will render the message as a Bootstrap Alert component
+      Navigation structure : alter the application's navigation menu to use Bootstrap's Navbar component
+      Bootstrap and a large majority of existing UI frameworks produce responsive designs
+         meaning that the resulting applications render well on a variety of different screen sizes
+         Chrome developer tools makes it possible to simulate using our application in the browser of different mobile clients:
+   Material UI
+      MaterialUI React library implements the Material design visual language developed by Google
+      > npm install @material-ui/core
+      add stylesheet line to the head tag in the public/index.html file. The line loads Google's font Roboto
+      use MaterialUI to do the same modifications to the code we did earlier with bootstrap.
+      do !!
+   Closing thoughts
+      The difference between react-bootstrap and MaterialUI is not big. It's up to you which one you find better looking
+      Instead of using the React Bootstrap library, we could have just as well used Bootstrap directly by defining CSS classes to our application's HTML elements
+      benefit of using React UI framework libraries is that they include the JavaScript that is needed to make specific components work
+      UI libraries may have unstable API's and poor documentation
+         Semantic UI React is a lot better than with many other UI frameworks, as it is an official React integration library
+   Other UI frameworks
+   Styled components
+      The styled components library offers an interesting approach for defining styles through tagged template literals that were introduced in ES6
+      > npm install styled-components
+      Styled components have seen a consistent growth in popularity in recent times
+
+d. Webpack
+      One of the key players in making React applications functional is a tool called webpack
+   Bundling
+
+   .....
+
+e. Class components, Miscellaneous
+   Class Components
+      During the course we have only used React components having been defined as Javascript functions
+      This was not possible without the hook-functionality that came with version 16.8 of React
+      Before, when defining a component that uses state one had to define it using Javascript's Class-syntax
+      https://reactjs.org/docs/hooks-state.html
+      It is beneficial to at least be familiar with Class Components to some extent, since the world contains a lot of old React code
+      The component has a constructor and contains the method render
+      In contrast to when using the useState-hook, Class Components only contain one state
+         if the state is made up of multiple "parts" they should be stored as properties of the state. The state is initialized in the constructor
+      The component state is in the instance variable this.state. 
+         The state is an object having two properties. this.state.anecdotes is the list of anecdotes and this.state.current is the index of the currently shown anecdote
+      In Functional components the right place for fetching data from a server is inside an effect hook
+      The lifecycle-methods of Class Components offer corresponding functionality
+         The correct place to trigger the fetching of data from a server is inside the lifecycle-method componentDidMount
+         https://reactjs.org/docs/hooks-effect.html
+         The callback function of the HTTP request updates the component state using the method setState
+         Calling the method setState always trigger the rerender of the Class Component, i.e. calling the method render
+      The biggest difference between Functional components and Class components 
+         - the state of a Class component is a single object, and that the state is updated using the method setState
+         - in Functional components the state can consist of multiple different variables, with all of them having their own update function.
+      In some more advanced use cases the effect hook offers a considerably better mechanism for controlling side effects compared to the lifecycle-methods of Class Components.
+      A notable benefit of using Functional components is not having to deal with the self referencing this-reference of the Javascript class.
+      Class Components offer basically no benefits over Functional components enhanced with hooks, with the exception of the so-called error boundary mechanism
+      When writing fresh code there is no rational reason to use Class Components if the project is using React with a version number 16.8 or greater
+      On the other hand, there is currently no need to rewrite all old React code as Functional components.
+   Organization of code in React application
+      components, reducers, services directory fits a smaller application just fine
+      as the amount of components increase, better solutions are needed. There is no one correct way to organize a project
+         https://medium.com/hackernoon/the-100-correct-way-to-structure-a-react-app-or-why-theres-no-such-thing-3ede534ef1ed
+   Frontend and backend in the same repository
+      we have created the frontend and backend into separate repositories. However, we did the deployment by copying the bundled frontend code into the backend repository
+      A possibly better approach would have been to deploy the frontend code separately
+      Especially with applications created using create-react-app it is very straightforward thanks to the included buildpack
+   Changes on the server
+      If there are changes in the state on the server, the React-frontend we implemented will not notice these changes until the page reloads
+      How do we reflect the results of the computation to the frontend?
+         - One way is to execute polling on the frontend, meaning repeated requests to the backend API e.g. using the setInterval-command.
+         - A more sophisticated way is to use WebSockets
+            Instead of directly using the WebSocket API it is advisable to use the Socket.io-library
+            In part 8 our topic is GraphQL that provides a nice mechanism for notifying clients when there are changes in the backend data
+   Virtual DOM
+      browsers provide a DOM API, using which the JavaScript running in the browser can modify the elements defining the appearance of the page
+      When a software developer uses React they rarely or never directly manipulate the DOM. The function defining the React component returns a set of React-elements
+      read !!
+   On the role of React in applications
+      React is primarily a library for managing the creation of views for an application
+      READ !!
+   
