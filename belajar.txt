@@ -974,16 +974,123 @@ e. Class components, Miscellaneous
       React is primarily a library for managing the creation of views for an application
       READ !!
    React/node-application security
-      OWASP, publishes an annual list of the most common security risks in Web-applications
-      SKIP ...
+      OWASP, publishes an annual list of the most common security risks in Web-applications.
    Current trends
-      Typescript
-      Server side rendering, isomorphic applications and universal code
-      Progressive web apps
-      Microservice architecture
-      Serverless
+      - Typed versions of JavaScript
+         Use propstype to enforce type checking for props passed to React-components.
+   Server side rendering, isomorphic applications and universal code
+      browser is not the only domain where components defined using React can be rendered
+      The rendering can also be done on the server
+      One motivation for server side rendering is Search Engine Optimization (SEO)
+         Search engines have traditionally been very bad at recognizing JavaScript rendered content, however, the tide might be turning,
+      isomorphic web application is one that performs rendering on both the front- and backend.
+         universal code is code that can be executed in most environments, meaning both the frontend and the backend
+      Next.js, which is implemented on top of React is a good option for making universal applications.
+   Progressive web apps
+      web-applications, working as well as possible on every platform
+      PWAs should also work flawlessly in offline-mode or with a slow internet connection. The offline functionality can be implemented with the help of service workers
+      All the network traffic in a PWA should be encrypted.
+      Applications created using create-react-app are progressive by default
+   Microservice architecture
+      Microservices is a way of composing the backend of an application from many separate, independent services, which communicate with each other over the network
+      An individual microservice's purpose is to take care of a particular logical functional whole.
+         For example, the bloglist application could consist of two services: one handling user and another taking care of the blogs.
+      In a pure microservice architecture the services do not use a shared database.
+      API gateway between the microservices and the frontend  provides an illusion of a more traditional "everything on the same server"
+   Serverless
+      AWS Lambda, Google's Cloud functions enables the execution of individual functions in the cloud
+         Before, the smallest executable unit in the cloud was a single process, e.g. a runtime environment running a Node backend.
+      Using Amazon's API-gateway it is possible to make serverless applications where the requests to the defined HTTP API get responses directly from cloud functions
+      Developer can can focus on higher level of abstraction as there is no need to programmatically define the routing of HTTP-requests, database relations, etc., since the cloud infrastructure provides all of this
+         Cloud functions also lend themselves to creating well scaling system
    Useful libraries and interesting links
-      ...
+      - Lodash = handle complicated data
+      - Ramda = functional programming style
+      - date-fns and moment = handling times and dates
+      - Formik and redux-form = handle forms easier
+      - Recharts and highcharts = displays graphs
+      - immutable.js = immutable implementations of some data structures. Can be used for Redux, because reducers must be pure functions
+         Over the past year some of the popularity of Immutable.js has been taken over by Immer
+      - Redux-saga = provides an alternative way to make asynchronous actions for redux thunk
+      - React Google Analytics = gathering of analytics data on the interaction between the users and the page
+      - React Native = developing mobile applications
+      - Webpack = management and bundling of JavaScript projects
+
+[PART 8]
+a. GraphQL-server
+
+[PART 9]
+a. Introduction Typescript
+   TypeScript offers features such as better development-time tooling, static code analysis, compile-time type checking and code level documentation
+   TS includes all the features of JavaScript and its own additional features as well. All existing JavaScript code is actually valid TypeScript.\
+   TypeScript key language features
+      Type annotations : lightweight way to record the intended contract of a function or a variable
+      Structural typing
+      Type inference : TypeScript compiler can attempt to infer the type information if no type has been specified
+   Type alias : object dijadikan tipe data
+   Type erasure : TypeScript removes all type system constructs during compilation.
+      Input = let x: SomeType;
+      Output = let x;
+   Why should one use TypeScript?
+      TypeScript offers type checking and static code analysis
+      Type annotations in the code can function as a type of code level documentation
+      DEs can provide more specific and smarter intellisense when they know exactly what types of data you are processing.
+   What does TypeScript not fix?
+      Incomplete, invalid or missing types in external libraries
+      Sometimes type inference needs assistance
+      Mysterious type errors. When running into long confusing messages, start reading them from the end.
+b. First steps with TypeScript
+   Setting things up
+      TypeScript code is not executable by itself but it has to be first compiled into executable JavaScript
+      When TypeScript is compiled into JavaScript, annotations, interfaces, type aliases, and other type system constructs are removed
+         In a production environment the need for compilation often means that you have to setup a "build step"
+         npm package ts-node = compiles and executes the specified TypeScript file immediately, so that there is no need for a separate compilation step
+            global => npm install -g ts-node typescript
+            per project => npm install --save-dev ts-node typescript
+      Playground : https://www.typescriptlang.org/play/index.html
+      TypeScript types : https://www.typescriptlang.org/docs/handbook/2/everyday-types.html
+   Creating your first own types
+      type Operation = 'multiply' | 'add' | 'divide';
+      const calculator = (a: number, b: number, op: Operation): number =>  {
+         // ...
+      }
+   @types/{npm_package}
+      Types for existing packages can be found from the @types-organization within npm
+      Add the relevant types to project by installing an npm package with the name of your package with @types/ - prefix
+         Example : npm install --save-dev @types/react
+      The @types/* are maintained by Definitely typed
+      there is no need to require the types to the code, the installation of the package is enough
+   More about tsconfig
+      The tsconfig.json file contains all your core configurations on how you want TypeScript to work in your project
+   Adding express to the mix
+      npm install express
+      npm install --save-dev @types/express
+   The horrors of any
+      In TypeScript every untyped variable whose type cannot be inferred, becomes implicitly any type. Any is a kind of a "wild card" type which literally stands for whatever type
+      We can also explicitly type things any. The only difference between implicit and explicit any type is how the code looks, the compiler does not care about the difference.
+      Implicit any typings are usually considered problematic, since it is quite often due to the coder forgetting to assign types and the full power of TypeScript is not properly exploited.
+      In the rare occasions you seriously cannot know what the type of a variable is, you should explicitly state that in the code
+      Query field of an express Request object is explicitly typed any. Same is true for the request.body field
+      Configure eslint to disallow explicit any to prevent developers from using any type at all
+c. Typing the express app
+      We're not going to use ts-node anymore. in the long run it is advicable to use the official TypeScript compiler that comes with the typescript npm-package
+         The official compiler generates and packages JavaScript files from the .ts files so that the built production version won't contain any TypeScript code anymore
+      Setting up the project
+         npm install typescript --save-dev
+      TypeScript's Native Compiler (tsc) can help us to initialize our project, generating our tsconfig.json file
+         "scripts": {
+            "tsc": "tsc"
+         },
+      We can now initialise our tsconfig.json settings by running:
+         npm run tsc -- --init
+      The tsconfig.json file we just created contains a lengthy list of every configuration available to us (READ !)
+      Now that we have set our configuration, we can install express and, also @types/express. since this is a real project, we will use eslint from the very beginning:
+         npm install express
+         npm install --save-dev eslint @types/express @typescript-eslint/eslint-plugin @typescript-eslint/parser
+      We also create an .eslintrc
+      (Same as nodemon) npm install --save-dev ts-node-dev
+      
+
 
 [PART 11]
 CI/CD
@@ -1017,4 +1124,3 @@ Introduction to CI/CD
       Packaging and especially deployment are sometimes not considered to fall under the umbrella of CI
          We'll add them in here because in the real world it makes sense to lump it all together. 
          The packaging is often an area where issues crop up in CI as this isn't something that's usually tested locally.
-         
