@@ -866,6 +866,8 @@ b. Custom hooks
    More about hooks
       sources worth checking out
 
+...
+
 c. More about styles
    Ready-made UI libraries
       One of the first widely popular UI frameworks was the Bootstrap
@@ -910,6 +912,14 @@ c. More about styles
 d. Webpack
       One of the key players in making React applications functional is a tool called webpack
    Bundling
+      We have implemented our applications by dividing our code into separate modules that have been imported to places that require them
+         no browser actually knows how to handle code that is divided into modules
+      code that is divided into modules must be bundled for browsers, 
+         meaning that all of the source code files are transformed into a single file that contains all of the application code
+         we performed the bundling of our application with the npm run build command to bundles the source code using webpack
+         The index.html file located at the root of the build directory is the "main file" of the application, that loads the bundled JavaScript file with a script tag
+         the build script also bundles the application's CSS files into a single
+
 
    .....
 
@@ -949,9 +959,11 @@ e. Class components, Miscellaneous
       Especially with applications created using create-react-app it is very straightforward thanks to the included buildpack
    Changes on the server
       If there are changes in the state on the server, the React-frontend we implemented will not notice these changes until the page reloads
+      A similar situation arises when the frontend triggers a time-consuming computation in the backend
       How do we reflect the results of the computation to the frontend?
          - One way is to execute polling on the frontend, meaning repeated requests to the backend API e.g. using the setInterval-command.
-         - A more sophisticated way is to use WebSockets
+         - A more sophisticated way is to use WebSockets, using which it is possible to establish a two-way communication channel between the browser and the server
+            The browser has to define callback functions for situations when the server sends data about updating state using a WebSocket
             Instead of directly using the WebSocket API it is advisable to use the Socket.io-library
             In part 8 our topic is GraphQL that provides a nice mechanism for notifying clients when there are changes in the backend data
    Virtual DOM
@@ -961,4 +973,48 @@ e. Class components, Miscellaneous
    On the role of React in applications
       React is primarily a library for managing the creation of views for an application
       READ !!
-   
+   React/node-application security
+      OWASP, publishes an annual list of the most common security risks in Web-applications
+      SKIP ...
+   Current trends
+      Typescript
+      Server side rendering, isomorphic applications and universal code
+      Progressive web apps
+      Microservice architecture
+      Serverless
+   Useful libraries and interesting links
+      ...
+
+[PART 11]
+CI/CD
+Introduction to CI/CD
+      Debugging code might be hard but debugging configurations is way harder
+   Getting software to production
+      Writing software is all well and good, but we need to deploy the software to production, i.e. give it to the real users.
+         After that we need to maintain it, release new versions, and work with other people to expand that software.
+      Many problems may arise when several developers are involved
+         a code works just fine in one developer's machine but another developer can not even get it started
+         If two developers are both working on changes and they haven't decided on a way to deploy to production, whose changes get deployed?
+   Some useful terms
+      Branches
+         Git allows multiple copies, streams, or versions of the code to co-exist without overwriting each other. 
+         Branches are useful when this environment becomes more complex. Each branch is effectively a copy of the main branch with some changes
+         each developer can work on their own set of changes and not affect any other developer until the changes are ready.
+      Pull request
+         merging a branch back to the main branch of software is quite often happening using a mechanism called pull request
+         Once the pull request is made or opened, another developer checks that all is ok and merges the PR
+      Build
+         preparing software to run on the platform where it's intended to run
+         In part 7 we had a look at webpack for building a production version of a React or any other frontend JavaScript or TypeScript codebase.
+      Deploy
+         Deployment refers to putting the software where it needs to be for the end-user to use it.
+         we'll develop a simple "deployment pipeline" that deploys each commit of your code automatically to Heroku if the committed code does not break anything.
+         Deployments can be significantly more complex, especially if we add requirements such as "the software must be available at all times during the deployment" (zero downtime deployments) 
+   What is CI?
+      CI refers to merging developer changes to the main branch often. 
+      We'd likely want to do some of these steps: lint, build, test, package, upload/deploy. This process should be strictly defined.
+   Packaging and Deployment as a part of CI
+      Packaging and especially deployment are sometimes not considered to fall under the umbrella of CI
+         We'll add them in here because in the real world it makes sense to lump it all together. 
+         The packaging is often an area where issues crop up in CI as this isn't something that's usually tested locally.
+         
